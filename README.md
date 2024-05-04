@@ -1,5 +1,5 @@
 # projetc
- Houmine Youness Fangari
+ Houmine Nada Youness Fangari
 les fonctions utilisee dan ce projet 
 1: fonction pour saisir un nom:
 la fonction prend un pointeur vers un tableau de characteres en parametre, elle affiche un message, ensuite la fonction fgets est pour lire l entree de lutilisateur, et aussi supprime le caractere de nouvelle lign(en remplacent ce caractere par un caractere null)
