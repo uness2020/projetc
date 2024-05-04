@@ -1,0 +1,258 @@
+//le code//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#define MAX_PRODUCTS 100
+#define MAX_DESCRIPTION 100
+#define MAX_USERNAME 50
+#define MAX_DATE 20
+
+// Structure pour un produit
+struct Product {
+    int id;
+    char name[50];
+    char description[MAX_DESCRIPTION];
+    char username[MAX_USERNAME];
+    float price;
+    int quantity;
+    int alert_threshold;
+    char last_entry_date[MAX_DATE];
+    char last_exit_date[MAX_DATE];
+};
+
+// Structure pour la liste des produits
+struct ProductList {
+    struct Product products[MAX_PRODUCTS];
+    int count;
+};
+
+// Fonction pour saisir le nom de l'utilisateur
+void enterUserName(char *name) {
+    printf("Bienvenue ! Veuillez saisir votre nom : ");
+    fgets(name, 50, stdin);
+    // Supprimer le caractère de nouvelle ligne à la fin
+    name[strcspn(name, "\n")] = 0;
+}
+
+// Fonction pour ajouter un produit
+void addProduct(struct ProductList *list, struct Product product) {
+    if (list->count < MAX_PRODUCTS) {
+        list->products[list->count++] = product;
+        printf("Produit ajouté avec succès.\n");
+    } else {
+        printf("La liste des produits est pleine. Impossible d'ajouter plus de produits.\n");
+    }
+}
+
+// Fonction pour afficher la liste des produits
+void displayProducts(struct ProductList list) {
+    printf("Liste des produits :\n");
+    printf("ID\tNom\tDescription\tNom Utilisateur\tPrix unitaire\tQuantité en stock\tSeuil d'alerte\tDernière entrée\tDernière sortie\n");
+    for (int i = 0; i < list.count; i++) {
+        printf("%d\t%s\t%s\t%s\t%.2f\t%d\t%d\t%s\t%s\n",
+               list.products[i].id,
+               list.products[i].name,
+               list.products[i].description,
+               list.products[i].username,
+               list.products[i].price,
+               list.products[i].quantity,
+               list.products[i].alert_threshold,
+               list.products[i].last_entry_date,
+               list.products[i].last_exit_date);
+    }
+}
+
+// Fonction pour sauvegarder les produits dans un fichier CSV
+void saveProductsToCSV(struct ProductList list, const char *listeproduit) {
+    FILE *file = fopen("listeproduit.csv", "w");
+    if (file == NULL) {
+        printf("Erreur lors de l'ouverture du fichier %s.\n", listeproduit);
+        return;
+    }
+    fprintf(file, "ID,Nom,Description,Nom Utilisateur,Prix unitaire,Quantité en stock,Seuil d'alerte,Dernière entrée,Dernière sortie\n");
+    for (int i = 0; i < list.count; i++) {
+        fprintf(file, "%d,%s,%s,%s,%.2f,%d,%d,%s,%s\n",
+                list.products[i].id,
+                list.products[i].name,
+                list.products[i].description,
+                list.products[i].username,
+                list.products[i].price,
+                list.products[i].quantity,
+                list.products[i].alert_threshold,
+                list.products[i].last_entry_date,
+                list.products[i].last_exit_date);
+    }
+    fclose(file);
+    printf("Les informations des produits ont été sauvegardées dans %s.\n", listeproduit);
+}
+
+// Fonction pour rechercher un produit par nom de produit
+void searchProductByName(struct ProductList list, const char *productName) {
+    int found = 0;
+    printf("Produits correspondants pour le nom '%s' :\n", productName);
+    printf("ID\tNom\tDescription\tNom Utilisateur\tPrix unitaire\tQuantité en stock\tSeuil d'alerte\tDernière entrée\tDernière sortie\n");
+    for (int i = 0; i < list.count; i++) {
+        if (strcmp(list.products[i].name, productName) == 0) {
+            printf("%d\t%s\t%s\t%s\t%.2f\t%d\t%d\t%s\t%s\n",
+                   list.products[i].id,
+                   list.products[i].name,
+                   list.products[i].description,
+                   list.products[i].username,
+                   list.products[i].price,
+                   list.products[i].quantity,
+                   list.products[i].alert_threshold,
+                   list.products[i].last_entry_date,
+                   list.products[i].last_exit_date);
+            found = 1;
+        }
+    }
+    if (!found) {
+        printf("Aucun produit correspondant trouvé pour le nom '%s'.\n", productName);
+    }
+}
+
+// Fonction pour rechercher un produit par nom d'utilisateur
+void searchProductByUser(struct ProductList list, const char *username) {
+    int found = 0;
+    printf("Produits correspondants pour l'utilisateur '%s' :\n", username);
+    printf("ID\tNom\tDescription\tNom Utilisateur\tPrix unitaire\tQuantité en stock\tSeuil d'alerte\tDernière entrée\tDernière sortie\n");
+    for (int i = 0; i < list.count; i++) {
+        if (strcmp(list.products[i].username, username) == 0) {
+            printf("%d\t%s\t%s\t%s\t%.2f\t%d\t%d\t%s\t%s\n",
+                   list.products[i].id,
+                   list.products[i].name,
+                   list.products[i].description,
+                   list.products[i].username,
+                   list.products[i].price,
+                   list.products[i].quantity,
+                   list.products[i].alert_threshold,
+                   list.products[i].last_entry_date,
+                   list.products[i].last_exit_date);
+            found = 1;
+        }
+    }
+    if (!found) {
+        printf("Aucun produit correspondant trouvé pour l'utilisateur '%s'.\n", username);
+    }
+}
+
+// Fonction de comparaison pour le tri par nom de produit
+int compareByName(const void *a, const void *b) {
+    const struct Product *prodA = (const struct Product *)a;
+    const struct Product *prodB = (const struct Product *)b;
+    return strcmp(prodA->name, prodB->name);
+}
+
+// Fonction de comparaison pour le tri par prix unitaire
+int compareByPrice(const void *a, const void *b) {
+    const struct Product *prodA = (const struct Product *)a;
+    const struct Product *prodB = (const struct Product *)b;
+    return (prodA->price > prodB->price) - (prodA->price < prodB->price);
+}
+
+// Fonction pour trier les produits par nom
+void sortProductsByName(struct ProductList *list) {
+    qsort(list->products, list->count, sizeof(struct Product), compareByName);
+}
+
+// Fonction pour trier les produits par prix unitaire
+void sortProductsByPrice(struct ProductList *list) {
+    qsort(list->products, list->count, sizeof(struct Product), compareByPrice);
+}
+
+int main() {
+    struct User {
+        char name[50];
+    };
+
+    struct ProductList productList = { .count = 0 };
+
+    struct User user;
+    enterUserName(user.name);
+    printf("Bonjour, %s ! Bienvenue dans l'application de gestion de stock.\n", user.name);
+
+    // Menu de l'application
+    int choice;
+    do {
+        printf("\nMenu :\n");
+        printf("1. Ajouter un produit\n");
+        printf("2. Afficher la liste des produits\n");
+        printf("3. Rechercher un produit par nom de produit\n");
+        printf("4. Rechercher un produit par nom d'utilisateur\n");
+        printf("5. Trier les produits par nom\n");
+        printf("6. Trier les produits par prix unitaire\n");
+        printf("7. Sauvegarder les informations des produits dans un fichier CSV\n");
+        printf("8. Quitter\n");
+        printf("Veuillez choisir une option : ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                {
+                    struct Product newProduct;
+                    printf("Saisissez les détails du produit :\n");
+                    printf("ID : ");
+                    scanf("%d", &newProduct.id);
+                    printf("Nom : ");
+                    scanf("%s", newProduct.name);
+                    printf("Description : ");
+                    scanf("%s", newProduct.description);
+                    printf("Nom Utilisateur : ");
+                    scanf("%s", newProduct.username);
+                    printf("Prix : ");
+                    scanf("%f", &newProduct.price);
+                    printf("Quantité : ");
+                    scanf("%d", &newProduct.quantity);
+                    printf("Seuil d'alerte : ");
+                    scanf("%d", &newProduct.alert_threshold);
+                    time_t current_time;
+                    struct tm *local_time;
+                    time(&current_time);
+                    local_time = localtime(&current_time);
+                    strftime(newProduct.last_entry_date, sizeof(newProduct.last_entry_date), "%Y-%m-%d %H:%M:%S", local_time);
+                    strcpy(newProduct.last_exit_date, "-");
+                    addProduct(&productList, newProduct);
+                    break;
+                }
+            case 2:
+                displayProducts(productList);
+                break;
+            case 3:
+                {
+                    char productName[50];
+                    printf("Entrez le nom du produit à rechercher : ");
+                    scanf("%s", productName);
+                    searchProductByName(productList, productName);
+                    break;
+                }
+            case 4:
+                {
+                    char username[50];
+                    printf("Entrez le nom d'utilisateur à rechercher : ");
+                    scanf("%s", username);
+                    searchProductByUser(productList, username);
+                    break;
+                }
+            case 5:
+                sortProductsByName(&productList);
+                printf("Les produits ont été triés par nom.\n");
+                break;
+            case 6:
+                sortProductsByPrice(&productList);
+                printf("Les produits ont été triés par prix unitaire.\n");
+                break;
+            case 7:
+                saveProductsToCSV(productList, "products.csv");
+                break;
+            case 8:
+                printf("Au revoir !\n");
+                break;
+            default:
+                printf("Option invalide. Veuillez réessayer.\n");
+        }
+    } while (choice != 8);
+
+    return 0;
+}
